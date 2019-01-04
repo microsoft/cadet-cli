@@ -33,4 +33,4 @@ To add dependencies:
 To update dependencies:
 
 + Run `pip install -r requirements-to-freeze.txt --upgrade`
-+ Finally, when ready to lock versions (before release), run `pip freeze > requirements.txt``
++ Finally, when ready to lock versions (before release), run `pip freeze > requirements.txt`
