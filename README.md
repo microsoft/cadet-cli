@@ -25,7 +25,7 @@ cadet import --type csv --uri "your-server-connection-string" --collection "your
 The following command will import a tab-separated values file into the Azure Cosmos DB server located at `your-server-connection-string` into the collection `your-collection-name`. It will read the data from `path/to/tsv.tsv`, and will output progress as data uploads.
 
 ```
-cadet import --type csv --uri "your-server-connection-string" --collection "your-collection-name" path/to/tsv.tsv
+cadet import --type tsv --uri "your-server-connection-string" --collection "your-collection-name" path/to/tsv.tsv
 ```
 
 ## Contributing
