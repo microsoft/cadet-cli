@@ -10,7 +10,7 @@ You can __install the latest version of `cadet` from the [Releases](https://gith
 
 > Note: at this time, `cadet` [does not support](https://github.com/Microsoft/cadet-cli/issues/1) downloading data from Azure Cosmos DB.
 
-Cadet is designed to make it simple to exchange data with Azure Cosmos DB instances that are using the [DocumentDB](https://docs.microsoft.com/en-us/azure/cosmos-db/create-sql-api-dotnet) backing store. It is a cross platform [python](https://www.python.org/) cli that leverages the Azure Cosmos DB python sdk under the hood. Here are some common things you can do using `cadet`:
+Cadet is designed to make it simple to exchange data with Azure Cosmos DB instances that are using the [DocumentDB](https://docs.microsoft.com/en-us/azure/cosmos-db/create-sql-api-dotnet) backing store. It is a cross platform [python](https://www.python.org/) cli that leverages the Azure Cosmos DB python SDK under the hood. Here are some common things you can do using `cadet`:
 
 ### Import data from csv
 
