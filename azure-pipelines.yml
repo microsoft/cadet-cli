@@ -1,19 +1,88 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
+phases:
+- phase: Phase_1
+  displayName: Windows
+  condition: succeeded()
+  queue:
+    name: Hosted VS2017
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.x'
+  - script: |  
+       cd package
+       pip install -r requirements.txt
+       pyinstaller --onefile ../src/cadet.py
+    displayName: 'Command Line Script'
+  - task: GitHubRelease@0
+    displayName: 'GitHub release (create)'
+    inputs:
+      gitHubConnection: bengreenier
+      repositoryName: 'microsoft/cadet-cli'
+      tagSource: manual
+      tag: 'v$(Build.SourceVersion)'
+      title: '$(Build.SourceVersion)'
+      releaseNotesSource: input
+      assets: 'package/dist/*'
+      isDraft: true
+- phase: Phase_2
+  displayName: Linux (Ubuntu 1604)
+  dependsOn: Phase_1
+  condition: succeeded()
+  queue:
+    name: Hosted Ubuntu 1604
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.5'
+    inputs:
+      versionSpec: 3.5
+  - script: 'sudo apt-get install -y python3-dev'
+    displayName: 'Command Line Script - apt-get'
+  - script: |  
+       cd package
+       pip3 install -r requirements.txt
+       pyinstaller --onefile ../src/cadet.py
+       mv dist/cadet dist/cadet.linux
+    displayName: 'Command Line Script'
+  - task: GitHubRelease@0
+    displayName: 'GitHub release (edit)'
+    inputs:
+      gitHubConnection: bengreenier
+      repositoryName: 'microsoft/cadet-cli'
+      action: edit
+      tag: 'v$(Build.SourceVersion)'
+      title: '$(Build.SourceVersion)'
+      releaseNotesSource: input
+      assets: 'package/dist/*'
+      assetUploadMode: replace
+      isDraft: true
+- phase: Phase_3
+  displayName: Mac
+  dependsOn: Phase_1
+  condition: succeeded()
+  queue:
+    name: Hosted macOS
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.x'
+  - script: |  
+       cd package
+       pip install -r requirements.txt
+       pyinstaller --onefile ../src/cadet.py
+       mv dist/cadet dist/cadet.mac
+    displayName: 'Command Line Script'
+  - task: GitHubRelease@0
+    displayName: 'GitHub release (edit)'
+    inputs:
+      gitHubConnection: bengreenier
+      repositoryName: 'microsoft/cadet-cli'
+      action: edit
+      tag: 'v$(Build.SourceVersion)'
+      title: '$(Build.SourceVersion)'
+      releaseNotesSource: input
+      assets: 'package/dist/*'
+      assetUploadMode: replace
+      isDraft: true
 
-pool:
-  vmImage: 'Ubuntu-16.04'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
