@@ -10,10 +10,15 @@ phases:
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.x'
   - script: |  
+       cd src
+       pip install -r requirements.txt
+       pytest
+    displayName: test
+  - script: |  
        cd package
        pip install -r requirements.txt
        pyinstaller --onefile ../src/cadet.py
-    displayName: 'Command Line Script'
+    displayName: package
   - task: GitHubRelease@0
     displayName: 'GitHub release (create)'
     inputs:
@@ -36,14 +41,19 @@ phases:
     displayName: 'Use Python 3.5'
     inputs:
       versionSpec: 3.5
+  - script: |  
+       cd src
+       pip3 install -r requirements.txt
+       pytest
+    displayName: test
   - script: 'sudo apt-get install -y python3-dev'
-    displayName: 'Command Line Script - apt-get'
+    displayName: 'deps - apt-get'
   - script: |  
        cd package
        pip3 install -r requirements.txt
        pyinstaller --onefile ../src/cadet.py
        mv dist/cadet dist/cadet.linux
-    displayName: 'Command Line Script'
+    displayName: package
   - task: GitHubRelease@0
     displayName: 'GitHub release (edit)'
     inputs:
@@ -63,6 +73,11 @@ phases:
   queue:
     name: Hosted macOS
   steps:
+  - script: |  
+       cd src
+       pip install -r requirements.txt
+       pytest
+    displayName: test
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.x'
   - script: |  
@@ -70,7 +85,7 @@ phases:
        pip install -r requirements.txt
        pyinstaller --onefile ../src/cadet.py
        mv dist/cadet dist/cadet.mac
-    displayName: 'Command Line Script'
+    displayName: package
   - task: GitHubRelease@0
     displayName: 'GitHub release (edit)'
     inputs:
@@ -83,6 +98,3 @@ phases:
       assets: 'package/dist/*'
       assetUploadMode: replace
       isDraft: true
-
-
-
