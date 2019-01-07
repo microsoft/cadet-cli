@@ -1,5 +1,7 @@
 trigger:
-- master
+  branches:
+    include:
+    - master
 phases:
 - phase: Phase_1
   displayName: Windows
@@ -19,6 +21,7 @@ phases:
        pip install -r requirements.txt
        pyinstaller --onefile ../src/cadet.py
     displayName: package
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   - task: GitHubRelease@0
     displayName: 'GitHub release (create)'
     inputs:
@@ -30,6 +33,7 @@ phases:
       releaseNotesSource: input
       assets: 'package/dist/*'
       isDraft: true
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 - phase: Phase_2
   displayName: Linux (Ubuntu 1604)
   dependsOn: Phase_1
@@ -54,6 +58,7 @@ phases:
        pyinstaller --onefile ../src/cadet.py
        mv dist/cadet dist/cadet.linux
     displayName: package
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   - task: GitHubRelease@0
     displayName: 'GitHub release (edit)'
     inputs:
@@ -66,6 +71,7 @@ phases:
       assets: 'package/dist/*'
       assetUploadMode: replace
       isDraft: true
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 - phase: Phase_3
   displayName: Mac
   dependsOn: Phase_1
@@ -86,6 +92,7 @@ phases:
        pyinstaller --onefile ../src/cadet.py
        mv dist/cadet dist/cadet.mac
     displayName: package
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   - task: GitHubRelease@0
     displayName: 'GitHub release (edit)'
     inputs:
@@ -98,3 +105,4 @@ phases:
       assets: 'package/dist/*'
       assetUploadMode: replace
       isDraft: true
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
