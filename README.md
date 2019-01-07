@@ -1,5 +1,7 @@
 # cadet-cli
 
+[![Build Status](https://dev.azure.com/csebostoncrew/Cadet-CLI/_apis/build/status/Microsoft.cadet-cli?branchName=master)](https://dev.azure.com/csebostoncrew/Cadet-CLI/_build/latest?definitionId=26?branchName=master)
+
 **C**osmos **A**utomated **D**ata **E**xchange **T**ool - A cross-platform utility to synchronize data with a [DocumentDB](https://docs.microsoft.com/en-us/azure/cosmos-db/create-sql-api-dotnet)-backed [Azure Cosmos DB](https://azure.microsoft.com/en-us/services/cosmos-db/) instance. 👩‍🚀☁
 
 ![Cadet-cli branded logo of a rocketship](./.github/logo.png)
