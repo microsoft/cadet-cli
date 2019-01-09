@@ -90,11 +90,9 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     except:
         raise click.BadParameter('\nAuthentication failure to Azure Cosmos')
 
-    # Stats read for percentage done
-
-
     # Read and upload at same time
     try:
+        # Stats read for percentage done
         source_size = os.stat(source).st_size
         click.echo('\nSource file total size is: %s bytes\n' % source_size)
 
