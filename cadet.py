@@ -52,7 +52,7 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     """
     # Make sure it's a CSV or TSV
     type_ = type_.upper()
-    if type_ not in ['CSV', 'TSV']:
+    if type_ not in ['CSV', 'TSV'] or not source.upper().endswith(('.CSV', '.TSV')):
         raise click.BadParameter('\nWe currently only support CSV and TSV uploads from Cadet')
 
     delimiters = {
