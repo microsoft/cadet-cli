@@ -14,7 +14,7 @@ phases:
   - script: |  
        cd src
        pip install -r requirements.txt
-       pylint **/*
+       pylint src
        pytest
     displayName: lint and test
   - script: |  
@@ -49,8 +49,9 @@ phases:
   - script: |  
        cd src
        pip3 install -r requirements.txt
+       pylint src
        pytest
-    displayName: test
+    displayName: lint and test
   - script: 'sudo apt-get install -y python3-dev'
     displayName: 'deps - apt-get'
   - script: |  
@@ -83,8 +84,9 @@ phases:
   - script: |  
        cd src
        pip install -r requirements.txt
+       pylint src
        pytest
-    displayName: test
+    displayName: lint and test
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.x'
   - script: |  
