@@ -70,7 +70,7 @@ def upload(source, type_, collection_name, database_name, endpoint, primary_key,
             uri_array = uri.split(';')
             _connection_url = uri_array[0].replace('AccountEndpoint=', '')
             _auth = {'masterKey': uri_array[1].replace('AccountKey', '')}
-        except: # NOT HIT?
+        except:
             raise click.BadParameter("The connection string is not properly formatted - aborting")
 
 
