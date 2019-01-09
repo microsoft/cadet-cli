@@ -21,11 +21,11 @@ def main():
 
 @main.command(name='import')
 @click.option(
-    '--uri', '-u',
+    '--connection-string', '-s',
     help="The connection string for the database"
     )
 @click.option(
-    '--endpoint', '-e',
+    '--uri', '-u',
     help="The endpoint URI for the CosmosDB instance"
     )
 @click.option(
@@ -45,7 +45,7 @@ def main():
     help="The source file's type (Options: csv, tsv)"
 )
 @click.argument('source')
-def upload(source, type_, collection_name, database_name, endpoint, primary_key, uri):
+def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string):
     """
     Assumes that the Cosmos DB subscription has both the database and the collection already
     made when running this tool.
@@ -61,20 +61,21 @@ def upload(source, type_, collection_name, database_name, endpoint, primary_key,
     }
 
     # You must have either the connection string OR (endpoint and key) to connect
-    if (endpoint is None or primary_key is None) and (uri is None):
+    if (uri is None or primary_key is None) and (connection_string is None):
         raise click.BadParameter(
-            "You must have a connection string OR *both* an endpoint and a key to use Cadet"
+            "You must have a connection string OR *both* a URI and a key to use Cadet"
             )
-    elif endpoint is not None and primary_key is not None:
-        _connection_url = endpoint
+    elif uri is not None and primary_key is not None:
+        _connection_url = uri
         _auth = {'masterKey': primary_key}
-    elif uri is not None:
-        # If someone provides the connection string, break it apart into its subcomponents
+    elif connection_string is not None:
         try:
-            uri_array = uri.split(';')
-            _connection_url = uri_array[0].replace('AccountEndpoint=', '')
-            _auth = {'masterKey': uri_array[1].replace('AccountKey', '')}
+            # If someone provides the connection string, break it apart into its subcomponents
+            conn_str = connection_string.split(';')
+            _connection_url = conn_str[0].replace('AccountEndpoint=', '')
+            _auth = {'masterKey': conn_str[1].replace('AccountKey', '')}
         except:
+            # ...Unless they don't provide a usable connection string
             raise click.BadParameter("The connection string is not properly formatted - aborting")
 
 
@@ -91,12 +92,12 @@ def upload(source, type_, collection_name, database_name, endpoint, primary_key,
 
     # Stats read for percentage done
     source_size = os.stat(source).st_size
-    print('Source file total size is:', source_size, 'bytes\n')
+    click.echo('Source file total size is:', source_size, 'bytes\n')
 
     # Read and upload at same time
     try:
         with open(source, 'r') as source_file:
-            print('Starting the upload')
+            click.echo('Starting the upload')
             document = {}
             csv_reader = csv.reader(source_file, delimiter=delimiters[type_])
             line_count = 0
@@ -107,10 +108,14 @@ def upload(source, type_, collection_name, database_name, endpoint, primary_key,
                         line_count += 1
                     else:
                         for ind, col in enumerate(csv_cols):
-                            document[csv_cols[ind]] = row[ind]
-                        result = client.UpsertItem(collection_link, document)
-                        status_bar.update(sys.getsizeof(document))
-        print('Upload complete!')
+                            document[col] = row[ind]
+
+                        try:
+                            client.UpsertItem(collection_link, document)
+                            status_bar.update(sys.getsizeof(document))
+                        except:
+                            raise click.ClickException("Upload failed")
+        click.echo('Upload complete!')
     except:
         raise click.FileError(source)
 
