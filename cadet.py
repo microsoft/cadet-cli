@@ -22,27 +22,27 @@ def main():
 @main.command(name='import')
 @click.option(
     '--connection-string', '-s',
-    help="The connection string for the database"
+    help='The connection string for the database'
     )
 @click.option(
     '--uri', '-u',
-    help="The endpoint URI for the CosmosDB instance"
+    help='The endpoint URI for the CosmosDB instance'
     )
 @click.option(
     '--primary-key', '-k',
-    help="The key provided to access the CosmosDB database"
+    help='The key provided to access the CosmosDB database'
 )
 @click.option(
     '--database-name', '-d',
-    help="The name of the database to connect to"
+    help='The name of the database to connect to'
     )
 @click.option(
     '--collection-name', '-c',
-    help="The collection to load the data into"
+    help='The collection to load the data into'
     )
 @click.option(
     '--type', '-t', 'type_',
-    help="The source file's type (Options: csv, tsv)"
+    help='The source file\'s type (Options: csv, tsv)'
 )
 @click.argument('source')
 def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string):
@@ -52,18 +52,18 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     """
     # Make sure it's a CSV or TSV
     type_ = type_.upper()
-    if type_ not in ["CSV", "TSV"]:
-        raise click.BadParameter("We currently only support CSV and TSV uploads from Cadet")
+    if type_ not in ['CSV', 'TSV']:
+        raise click.BadParameter('\nWe currently only support CSV and TSV uploads from Cadet')
 
     delimiters = {
-        "CSV": ',',
-        "TSV": '\t'
+        'CSV': ',',
+        'TSV': '\t'
     }
 
     # You must have either the connection string OR (endpoint and key) to connect
     if (uri is None or primary_key is None) and (connection_string is None):
         raise click.BadParameter(
-            "You must have a connection string OR *both* a URI and a key to use Cadet"
+            '\nYou must have a connection string OR *both* a URI and a key to use Cadet'
             )
     elif uri is not None and primary_key is not None:
         _connection_url = uri
@@ -76,7 +76,7 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
             _auth = {'masterKey': conn_str[1].replace('AccountKey', '')}
         except:
             # ...Unless they don't provide a usable connection string
-            raise click.BadParameter("The connection string is not properly formatted - aborting")
+            raise click.BadParameter('\nThe connection string is not properly formatted - aborting')
 
 
     database_link = 'dbs/' + database_name
@@ -88,16 +88,18 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
             auth=_auth
             )
     except:
-        raise click.BadParameter("Authentication failure to Azure Cosmos")
+        raise click.BadParameter('\nAuthentication failure to Azure Cosmos')
 
     # Stats read for percentage done
-    source_size = os.stat(source).st_size
-    click.echo('Source file total size is: %s bytes\n' % source_size)
+
 
     # Read and upload at same time
     try:
+        source_size = os.stat(source).st_size
+        click.echo('\nSource file total size is: %s bytes\n' % source_size)
+
         with open(source, 'r') as source_file:
-            click.echo('Starting the upload')
+            click.echo('\nStarting the upload')
             document = {}
             csv_reader = csv.reader(source_file, delimiter=delimiters[type_])
             line_count = 0
@@ -114,10 +116,10 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
                             client.UpsertItem(collection_link, document)
                             status_bar.update(sys.getsizeof(document))
                         except:
-                            raise click.ClickException("Upload failed")
-        click.echo('Upload complete!')
-    except:
-        raise click.FileError(source)
+                            raise click.ClickException('\nUpload failed')
+        click.echo('\nUpload complete!')
+    except FileNotFoundError as e:
+        raise click.FileError(source, hint=e)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
