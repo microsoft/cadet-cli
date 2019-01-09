@@ -92,7 +92,7 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
 
     # Stats read for percentage done
     source_size = os.stat(source).st_size
-    click.echo('Source file total size is:', source_size, 'bytes\n')
+    click.echo('Source file total size is: %s bytes\n' % source_size)
 
     # Read and upload at same time
     try:
