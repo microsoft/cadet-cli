@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+This CLI tool allows a user to upload CSV and TSV files to an Azure CosmosDB instance configured
+to use DocumentDB.
+"""
 
 import csv
 import os
