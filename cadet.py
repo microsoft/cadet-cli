@@ -11,9 +11,9 @@ import click
 import azure.cosmos.cosmos_client as cosmos_client
 
 DELIMITERS = {
-        'CSV': ',',
-        'TSV': '\t'
-    }
+    'CSV': ',',
+    'TSV': '\t'
+}
 
 
 @click.group()
@@ -100,8 +100,8 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     # Read and upload at same time
     try:
         read_and_upload(source, type_, client, collection_link)
-    except FileNotFoundError as e:
-        raise click.FileError(source, hint=e)
+    except FileNotFoundError as err:
+        raise click.FileError(source, hint=err)
 
 
 def get_cosmos_client(connection_url, auth):
@@ -110,15 +110,15 @@ def get_cosmos_client(connection_url, auth):
     and returns the cosmos_client
     """
     return cosmos_client.CosmosClient(
-            url_connection=connection_url,
-            auth=auth
-        )
+        url_connection=connection_url,
+        auth=auth
+    )
 
 
-def read_and_upload(source, file_type, cosmos_client, collection_link):
+def read_and_upload(source, file_type, client, collection_link):
     """
-    Reads the CSV `source` of type `file_type`, connects to the `cosmos_client` to the database-collection
-    combination found in `collection_link`
+    Reads the CSV `source` of type `file_type`, connects to the `cosmos_client` to the
+    database-collection combination found in `collection_link`
     """
      # Stats read for percentage done
     source_size = os.stat(source).st_size
@@ -139,7 +139,7 @@ def read_and_upload(source, file_type, cosmos_client, collection_link):
                         document[col] = row[ind]
 
                     try:
-                        cosmos_client.UpsertItem(collection_link, document)
+                        client.UpsertItem(collection_link, document)
                         status_bar.update(sys.getsizeof(document))
                     except:
                         raise click.ClickException('Upload failed')
