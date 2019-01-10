@@ -34,15 +34,18 @@ def main():
 )
 @click.option(
     '--database-name', '-d',
-    help='The name of the database to connect to'
+    help='The name of the database to connect to',
+    required=True
     )
 @click.option(
     '--collection-name', '-c',
-    help='The collection to load the data into'
+    help='The collection to load the data into',
+    required=True
     )
 @click.option(
     '--type', '-t', 'type_',
-    help='The source file\'s type (Options: csv, tsv)'
+    help='The source file\'s type (Options: csv, tsv)',
+    required=True
 )
 @click.argument('source')
 def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string):
