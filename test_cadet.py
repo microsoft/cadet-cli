@@ -5,6 +5,7 @@ import csv
 import mock
 import os
 import pytest
+import pytest_mock
 from pytest_mock import mocker
 import sys
 
