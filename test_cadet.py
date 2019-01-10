@@ -119,3 +119,4 @@ class TestClass(object):
         invalid_connection_string = invalid_endpoint + invalid_accountKey
         result = runner.invoke(cadet.upload, [GOOD_CSV_TEST_FILE, '--type', CSV_TYPE, '--database-name', VALID_DB_NAME, '--collection-name', VALID_COLLECTION_NAME, '-s', invalid_connection_string])
         assert result.exit_code != 0
+        
