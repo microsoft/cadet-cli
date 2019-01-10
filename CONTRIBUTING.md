@@ -20,6 +20,13 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 + `pip install -r requirements.txt`
 + Ready to code and run
 
+## Testing
+
+> Note: Ensure you've first completed the [Getting started](#getting-started) steps!
+
++ `cd src`
++ `pytest`
+
 ## Dependency Management
 
 In this project, we manage dependencies [this way](https://www.kennethreitz.org/essays/a-better-pip-workflow) (because it's simple and meets our minimum requirements).
@@ -34,3 +41,7 @@ To update dependencies:
 
 + Run `pip install -r requirements-to-freeze.txt --upgrade`
 + Finally, when ready to lock versions (before release), run `pip freeze > requirements.txt`
+
+## Packaging
+
+To create production binaries (releases), see [package/README.md](./package/README.md).
