@@ -117,7 +117,7 @@ def get_cosmos_client(connection_url, auth):
 
 def read_and_upload(source, file_type, client, collection_link):
     """
-    Reads the CSV `source` of type `file_type`, connects to the `cosmos_client` to the
+    Reads the CSV `source` of type `file_type`, connects to the `client` to the
     database-collection combination found in `collection_link`
     """
      # Stats read for percentage done
