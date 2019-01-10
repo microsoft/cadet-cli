@@ -10,6 +10,11 @@ import sys
 import click
 import azure.cosmos.cosmos_client as cosmos_client
 
+DELIMITERS = {
+    'CSV': ',',
+    'TSV': '\t'
+}
+
 
 @click.group()
 def main():
@@ -29,7 +34,7 @@ def main():
     help='The endpoint URI for the CosmosDB instance'
     )
 @click.option(
-    '--primary-key', '-k',
+    '--primary-key', '-k', '--key',
     help='The key provided to access the CosmosDB database'
 )
 @click.option(
@@ -50,6 +55,13 @@ def main():
 @click.argument('source')
 def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string):
     """
+    Given a source file `source` of type `type_`:
+        1. connects to the Cosmos DB instance using either
+            (a) `primary_key` and `uri`
+            OR
+            (b) `connection_string`
+        2. ...and uploads the data to the collection `collection_name` on database `database_name
+
     Assumes that the Cosmos DB subscription has both the database and the collection already
     made when running this tool.
     """
@@ -57,11 +69,6 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     type_ = type_.upper()
     if type_ not in ['CSV', 'TSV'] or not source.upper().endswith(('.CSV', '.TSV')):
         raise click.BadParameter('We currently only support CSV and TSV uploads from Cadet')
-
-    delimiters = {
-        'CSV': ',',
-        'TSV': '\t'
-    }
 
     # You must have either the connection string OR (endpoint and key) to connect
     if (uri is None or primary_key is None) and (connection_string is None):
@@ -76,51 +83,68 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
             # If someone provides the connection string, break it apart into its subcomponents
             conn_str = connection_string.split(';')
             _connection_url = conn_str[0].replace('AccountEndpoint=', '')
-            _auth = {'masterKey': conn_str[1].replace('AccountKey', '')}
+            _auth = {'masterKey': conn_str[1].replace('AccountKey=', '')}
         except:
             # ...Unless they don't provide a usable connection string
             raise click.BadParameter('The connection string is not properly formatted - aborting')
 
-
     database_link = 'dbs/' + database_name
     collection_link = database_link + '/colls/' + collection_name
 
+    # Connect to Cosmos
     try:
-        client = cosmos_client.CosmosClient(
-            url_connection=_connection_url,
-            auth=_auth
-            )
+        client = get_cosmos_client(_connection_url, _auth)
     except:
         raise click.BadParameter('Authentication failure to Azure Cosmos')
 
     # Read and upload at same time
     try:
-        # Stats read for percentage done
-        source_size = os.stat(source).st_size
-        click.echo('Source file total size is: %s bytes' % source_size)
+        read_and_upload(source, type_, client, collection_link)
+    except FileNotFoundError as err:
+        raise click.FileError(source, hint=err)
 
-        with open(source, 'r') as source_file:
-            click.echo('Starting the upload')
-            document = {}
-            csv_reader = csv.reader(source_file, delimiter=delimiters[type_])
-            line_count = 0
-            with click.progressbar(length=source_size, show_percent=True) as status_bar:
-                for row in csv_reader:
-                    if line_count == 0:
-                        csv_cols = row
-                        line_count += 1
-                    else:
-                        for ind, col in enumerate(csv_cols):
-                            document[col] = row[ind]
 
-                        try:
-                            client.UpsertItem(collection_link, document)
-                            status_bar.update(sys.getsizeof(document))
-                        except:
-                            raise click.ClickException('Upload failed')
-        click.echo('Upload complete!')
-    except FileNotFoundError as e:
-        raise click.FileError(source, hint=e)
+def get_cosmos_client(connection_url, auth):
+    """
+    Connects to the Cosmos instance via the `connection_url` (authenticating with `auth`)
+    and returns the cosmos_client
+    """
+    return cosmos_client.CosmosClient(
+        url_connection=connection_url,
+        auth=auth
+    )
+
+
+def read_and_upload(source, file_type, client, collection_link):
+    """
+    Reads the CSV `source` of type `file_type`, connects to the `cosmos_client` to the
+    database-collection combination found in `collection_link`
+    """
+     # Stats read for percentage done
+    source_size = os.stat(source).st_size
+    click.echo('Source file total size is: %s bytes' % source_size)
+
+    with open(source, 'r') as source_file:
+        click.echo('Starting the upload')
+        document = {}
+        csv_reader = csv.reader(source_file, delimiter=DELIMITERS[file_type])
+        line_count = 0
+        with click.progressbar(length=source_size, show_percent=True) as status_bar:
+            for row in csv_reader:
+                if line_count == 0:
+                    csv_cols = row
+                    line_count += 1
+                else:
+                    for ind, col in enumerate(csv_cols):
+                        document[col] = row[ind]
+
+                    try:
+                        client.UpsertItem(collection_link, document)
+                        status_bar.update(sys.getsizeof(document))
+                    except:
+                        raise click.ClickException('Upload failed')
+    click.echo('Upload complete!')
+
 
 if __name__ == '__main__':
     main()
