@@ -1,12 +1,12 @@
+import cadet as cadet
 import click
 from click.testing import CliRunner
-import pytest
-import cadet as cadet
 import csv
+import mock
 import os
+import pytest
+from pytest_mock import mocker
 import sys
-import click
-import azure.cosmos.cosmos_client as cosmos_client
 
 
 GOOD_CSV_TEST_FILE = 'test.csv'
