@@ -56,9 +56,9 @@ def main():
 def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string):
     """
     Given a source file `source` of type `type_`:
-        1. connects to the Cosmos DB instance using either 
-            (a) `primary_key` and `uri` 
-            OR 
+        1. connects to the Cosmos DB instance using either
+            (a) `primary_key` and `uri`
+            OR
             (b) `connection_string`
         2. ...and uploads the data to the collection `collection_name` on database `database_name
 
