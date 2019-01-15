@@ -85,6 +85,9 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     elif connection_string is not None:
         try:
             # If someone provides the connection string, break it apart into its subcomponents
+            if 'AccountEndpoint=' not in connection_string or 'AccountKey=' not in connection_string:
+                raise click.BadParameter('The connection string is not properly formatted - aborting')
+
             conn_str = connection_string.split(';')
             _connection_url = conn_str[0].replace('AccountEndpoint=', '')
             _auth = {'masterKey': conn_str[1].replace('AccountKey=', '')}

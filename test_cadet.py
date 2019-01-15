@@ -100,3 +100,13 @@ class TestClass(object):
         result = RUNNER.invoke(cadet.upload, [GOOD_CSV_TEST_FILE, '--type', CSV_TYPE, '--database-name', TEST_DB_NAME, '--collection-name', TEST_COLLECTION_NAME, '-u', TEST_URI, '--testing', mock_testing])
         assert result.exit_code != 0
         assert 'You must have a connection string OR *both* a URI and a key to use Cadet' in result.output
+    
+    def test_connection_string_parsing(self):
+        mock_testing = Mock()
+        mock_testing.UpsertItem.return_value = {}
+        invalid_uri = 'AccountEndpoint:invalidEndpoint'
+        invalid_accountKey = 'AccountKey=invalidKey;'
+        invalid_connection_string = invalid_uri + invalid_accountKey
+        result = RUNNER.invoke(cadet.upload, [GOOD_CSV_TEST_FILE, '--type', CSV_TYPE, '--database-name', TEST_DB_NAME, '--collection-name', TEST_COLLECTION_NAME, '-s', invalid_connection_string, '--testing', mock_testing])
+        assert result.exit_code != 0
+        assert 'The connection string is not properly formatted - aborting' in result.output
