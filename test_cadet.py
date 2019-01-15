@@ -5,10 +5,7 @@ import csv
 from mock import Mock
 import os
 import pytest
-import pytest_mock
-from pytest_mock import mocker
 import sys
-
 
 GOOD_CSV_TEST_FILE = 'test.csv'
 GOOD_TSV_TEST_FILE = 'test.tsv'
