@@ -52,8 +52,12 @@ def main():
     help='The source file\'s type (Options: csv, tsv)',
     required=True
 )
+@click.option(
+    '--testing',
+    help='Flag for use during testing'
+)
 @click.argument('source')
-def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string):
+def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string, testing = None):
     """
     Given a source file `source` of type `type_`:
         1. connects to the Cosmos DB instance using either
@@ -92,8 +96,12 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     collection_link = database_link + '/colls/' + collection_name
 
     # Connect to Cosmos
+    
     try:
-        client = get_cosmos_client(_connection_url, _auth)
+        if not testing:
+            client = get_cosmos_client(_connection_url, _auth)
+        else:
+            client = testing
     except:
         raise click.BadParameter('Authentication failure to Azure Cosmos')
 
@@ -104,7 +112,7 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
         raise click.FileError(source, hint=err)
 
 
-def get_cosmos_client(connection_url, auth):
+def get_cosmos_client(connection_url, auth, testing = None):
     """
     Connects to the Cosmos instance via the `connection_url` (authenticating with `auth`)
     and returns the cosmos_client
