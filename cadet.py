@@ -8,7 +8,6 @@ import csv
 import os
 import sys
 import click
-import json
 import azure.cosmos.cosmos_client as cosmos_client
 
 DELIMITERS = {
@@ -104,14 +103,9 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
 
     # Read and upload at same time
     try:
-        last_document = read_and_upload(source, type_, client, collection_link)
+        read_and_upload(source, type_, client, collection_link)
     except FileNotFoundError as err:
         raise click.FileError(source, hint=err)
-    finally:
-        click.echo()
-        click.echo("The last document to be uploaded is:")
-        click.echo()
-        click.echo(json.dumps(last_document))
 
 def get_cosmos_client(connection_url, auth):
     """
@@ -147,14 +141,12 @@ def read_and_upload(source, file_type, client, collection_link):
                     for ind, col in enumerate(csv_cols):
                         document[col] = row[ind]
                     try:
+                        print(document)
                         client.UpsertItem(collection_link, document)
-                        last_document = document
                         status_bar.update(sys.getsizeof(document))
                     except:
                         raise click.ClickException('Upload failed')
     click.echo('Upload complete!')
-    return last_document
-
-
+    
 if __name__ == '__main__':
     main()

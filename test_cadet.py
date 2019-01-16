@@ -3,7 +3,7 @@ import click
 from click.testing import CliRunner
 import csv
 from unittest import mock
-
+import unittest
 import os
 import pytest
 import sys
@@ -25,25 +25,59 @@ TEST_DB_NAME ='TestDB'
 TEST_COLLECTION_NAME = 'TestCollection'
 RUNNER = CliRunner()
 
+class MockClient(object):
+    def __init__(self):
+        self.upsertedDocs = []
+
+    def UpsertItem(self, collectionLink, document):
+        print(document)
+        self.upsertedDocs.append(document)
+
 class TestClass(object):
-    # Tests that, given all required options, including a primary Key and URI combo and a CSV file, the tool works as expected
+    # Tests that, given all required options, including as primary Key and URI combo and a CSV file, the tool works as expected
     @mock.patch('cadet.get_cosmos_client', autospec=True)
     def test_all_good_params_URI_primary_key_CSV(self, mock_get_cosmos_client):
+        MC = MockClient()
+        mock_get_cosmos_client.return_value = MC
         result = RUNNER.invoke(cadet.upload, [GOOD_CSV_TEST_FILE, '--type', CSV_TYPE, '-d', TEST_DB_NAME, '-c', TEST_COLLECTION_NAME, '-u', TEST_URI, '-k', TEST_KEY])
-        assert '{"policyID": "172534", "statecode": "FL", "county": "CLAY COUNTY",' in result.output
+        # print(MC.upsertedDocs)
+        
+        expected_keys = ['county', 'eq_site_limit', 'policyID', 'statecode']
+        expected_values = ['0', '17534','CLAY COUNTY', 'FL']
+        keys = list(MC.upsertedDocs[0].keys())
+        keys.sort()
+        vals = list(MC.upsertedDocs[0].values())
+        vals.sort()
+        
+        assert keys == expected_keys
+        assert vals == expected_values
+        assert len(MC.upsertedDocs) == 5
         assert result.exit_code == 0
 
     # Tests that, given all required options, using a connection string and a CSV file, the tool works as expected
     @mock.patch('cadet.get_cosmos_client', autospec=True)
     def test_all_good_params_connection_string_CSV(self, mock_get_cosmos_client):
+        MC = MockClient()
+        mock_get_cosmos_client.return_value = MC
         result = RUNNER.invoke(cadet.upload, [GOOD_CSV_TEST_FILE, '--type', CSV_TYPE, '--database-name', TEST_DB_NAME, '--collection-name', TEST_COLLECTION_NAME, '--connection-string', TEST_CONNECTION_STRING])
-        assert '{"policyID": "172534", "statecode": "FL", "county": "CLAY COUNTY",' in result.output
+        expected_keys = ['county', 'eq_site_limit', 'policyID', 'statecode']
+        expected_values = ['0', '172534','CLAY COUNTY', 'FL']
+        keys = list(MC.upsertedDocs[0].keys())
+        keys.sort()
+        vals = list(MC.upsertedDocs[0].values())
+        vals.sort()
+        assert keys == expected_keys
+        assert vals == expected_values
+        assert len(MC.upsertedDocs) == 5
         assert result.exit_code == 0
 
     # Tests that, given all required options, including a primary Key and URI combo and a TSV file, the tool works as expected
     @mock.patch('cadet.get_cosmos_client', autospec=True)
     def test_all_good_params_URI_primary_key_TSV(self, mock_get_cosmos_client):
+        MC = MockClient()
+        mock_get_cosmos_client.return_value = MC
         result = RUNNER.invoke(cadet.upload, [GOOD_TSV_TEST_FILE, '--type', TSV_TYPE, '-d', TEST_DB_NAME, '-c', TEST_COLLECTION_NAME, '-u', TEST_URI, '-k', TEST_KEY])
+        print(MC.upsertedDocs)
         assert '{"Name": "Zeke", "Age": "45", "Address": "W Main St"}' in result.output
         assert result.exit_code == 0
 
@@ -98,8 +132,8 @@ class TestClass(object):
     
     # Tests that connection string is correctly parsed
     def test_connection_string_parsing(self):
-        invalid_uri = 'AccountEndpoint:invalidEndpoint'
-        invalid_accountKey = 'AccountKey=invalidKey;'
+        invalid_uri = 'AccountEndpoint=invalidEndpoint'
+        invalid_accountKey = 'AccountKey:invalidKey;'
         invalid_connection_string = invalid_uri + invalid_accountKey
         result = RUNNER.invoke(cadet.upload, [GOOD_CSV_TEST_FILE, '--type', CSV_TYPE, '--database-name', TEST_DB_NAME, '--collection-name', TEST_COLLECTION_NAME, '-s', invalid_connection_string])
         assert result.exit_code != 0
