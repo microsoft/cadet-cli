@@ -8,6 +8,7 @@ import csv
 import os
 import sys
 import click
+import json
 import azure.cosmos.cosmos_client as cosmos_client
 
 DELIMITERS = {
@@ -52,12 +53,8 @@ def main():
     help='The source file\'s type (Options: csv, tsv)',
     required=True
 )
-@click.option(
-    '--testing',
-    help='Flag for use during testing'
-)
 @click.argument('source')
-def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string, testing = None):
+def upload(source, type_, collection_name, database_name, primary_key=None, uri=None, connection_string=None):
     """
     Given a source file `source` of type `type_`:
         1. connects to the Cosmos DB instance using either
@@ -101,21 +98,22 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     # Connect to Cosmos
     
     try:
-        if not testing:
-            client = get_cosmos_client(_connection_url, _auth)
-        else:
-            client = testing
+        client = get_cosmos_client(_connection_url, _auth)
     except:
         raise click.BadParameter('Authentication failure to Azure Cosmos')
 
     # Read and upload at same time
     try:
-        read_and_upload(source, type_, client, collection_link)
+        last_document = read_and_upload(source, type_, client, collection_link)
     except FileNotFoundError as err:
         raise click.FileError(source, hint=err)
+    finally:
+        click.echo()
+        click.echo("The last document to be uploaded is:")
+        click.echo()
+        click.echo(json.dumps(last_document))
 
-
-def get_cosmos_client(connection_url, auth, testing = None):
+def get_cosmos_client(connection_url, auth):
     """
     Connects to the Cosmos instance via the `connection_url` (authenticating with `auth`)
     and returns the cosmos_client
@@ -148,13 +146,14 @@ def read_and_upload(source, file_type, client, collection_link):
                 else:
                     for ind, col in enumerate(csv_cols):
                         document[col] = row[ind]
-
                     try:
                         client.UpsertItem(collection_link, document)
+                        last_document = document
                         status_bar.update(sys.getsizeof(document))
                     except:
                         raise click.ClickException('Upload failed')
     click.echo('Upload complete!')
+    return last_document
 
 
 if __name__ == '__main__':
