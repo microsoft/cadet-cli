@@ -96,6 +96,7 @@ class TestClass(object):
         assert result.exit_code != 0
         assert 'You must have a connection string OR *both* a URI and a key to use Cadet' in result.output
     
+    # Tests that connection string is correctly parsed
     def test_connection_string_parsing(self):
         invalid_uri = 'AccountEndpoint:invalidEndpoint'
         invalid_accountKey = 'AccountKey=invalidKey;'
@@ -104,6 +105,7 @@ class TestClass(object):
         assert result.exit_code != 0
         assert 'The connection string is not properly formatted - aborting' in result.output
 
+    # Tests that an authentication failure raises an exception
     @mock.patch('cadet.get_cosmos_client', autospec=True)
     def test_authentication_failure(self, mock_get_cosmos_client):
             mock_get_cosmos_client.side_effect = click.BadParameter('Authentication failure to Azure Cosmos')
