@@ -54,7 +54,7 @@ def main():
     required=True
 )
 @click.argument('source')
-def upload(source, type_, collection_name, database_name, primary_key=None, uri=None, connection_string=None):
+def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string):
     """
     Given a source file `source` of type `type_`:
         1. connects to the Cosmos DB instance using either
