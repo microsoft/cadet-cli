@@ -209,6 +209,7 @@ class TestClass(object):
         assert result.exit_code != 0
         assert 'The connection string is not properly formatted - aborting' in result.output
 
+    #Test that cosmos_client error throwing functionality, if connection to service fails
     @mock.patch('cadet.cosmos_client', autospec=True)
     def test_cosmos_client_throws_error(self, mock_cosmos_client):
         MC = MockClient()
