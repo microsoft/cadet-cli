@@ -141,7 +141,6 @@ def read_and_upload(source, file_type, client, collection_link):
                     for ind, col in enumerate(csv_cols):
                         document[col] = row[ind]
                     try:
-                        print(document)
                         client.UpsertItem(collection_link, document)
                         status_bar.update(sys.getsizeof(document))
                     except:
