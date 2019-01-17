@@ -1,12 +1,15 @@
-import cadet as cadet
-import click
 from click.testing import CliRunner
-import csv
+from requests.exceptions import ConnectionError
 from unittest import mock
-import unittest
+
+import cadet as cadet
+import copy
+import click
+import csv
 import os
 import pytest
 import sys
+import unittest
 
 GOOD_CSV_TEST_FILE = 'test.csv'
 GOOD_TSV_TEST_FILE = 'test.tsv'
@@ -27,11 +30,13 @@ RUNNER = CliRunner()
 
 class MockClient(object):
     def __init__(self):
-        self.upsertedDocs = []
+        self.upsertedDocs = list()
 
     def UpsertItem(self, collectionLink, document):
-        print(document)
-        self.upsertedDocs.append(document)
+        self.upsertedDocs.append(copy.copy(document))
+
+    def CosmosClient(self, url_connection, auth):
+        raise ConnectionError('Authentication failure to Azure Cosmos')
 
 class TestClass(object):
     # Tests that, given all required options, including as primary Key and URI combo and a CSV file, the tool works as expected
@@ -40,17 +45,28 @@ class TestClass(object):
         MC = MockClient()
         mock_get_cosmos_client.return_value = MC
         result = RUNNER.invoke(cadet.upload, [GOOD_CSV_TEST_FILE, '--type', CSV_TYPE, '-d', TEST_DB_NAME, '-c', TEST_COLLECTION_NAME, '-u', TEST_URI, '-k', TEST_KEY])
-        # print(MC.upsertedDocs)
         
         expected_keys = ['county', 'eq_site_limit', 'policyID', 'statecode']
-        expected_values = ['0', '17534','CLAY COUNTY', 'FL']
-        keys = list(MC.upsertedDocs[0].keys())
-        keys.sort()
-        vals = list(MC.upsertedDocs[0].values())
-        vals.sort()
         
-        assert keys == expected_keys
-        assert vals == expected_values
+        expected_values = list()
+        
+        expected_values.append(['119736', '498960','CLAY COUNTY', 'FL'])
+        expected_values.append(['1322376', '448094','CLAY COUNTY', 'FL'])
+        expected_values.append(['190724', '206893','CLAY COUNTY', 'FL'])
+        expected_values.append(['0', '333743','CLAY COUNTY', 'FL'])
+        expected_values.append(['0', '172534','CLAY COUNTY', 'FL'])
+
+        for num in range(len(MC.upsertedDocs)):
+            vals = MC.upsertedDocs[num]
+
+            keys = list(vals.keys())
+            vals = list(vals.values())
+
+            keys.sort()
+            vals.sort()
+            assert keys == expected_keys
+            assert vals == expected_values[num]
+
         assert len(MC.upsertedDocs) == 5
         assert result.exit_code == 0
 
@@ -60,16 +76,30 @@ class TestClass(object):
         MC = MockClient()
         mock_get_cosmos_client.return_value = MC
         result = RUNNER.invoke(cadet.upload, [GOOD_CSV_TEST_FILE, '--type', CSV_TYPE, '--database-name', TEST_DB_NAME, '--collection-name', TEST_COLLECTION_NAME, '--connection-string', TEST_CONNECTION_STRING])
+        
         expected_keys = ['county', 'eq_site_limit', 'policyID', 'statecode']
-        expected_values = ['0', '172534','CLAY COUNTY', 'FL']
-        keys = list(MC.upsertedDocs[0].keys())
-        keys.sort()
-        vals = list(MC.upsertedDocs[0].values())
-        vals.sort()
-        assert keys == expected_keys
-        assert vals == expected_values
+        
+        expected_values = list()
+        expected_values.append(['119736', '498960','CLAY COUNTY', 'FL'])
+        expected_values.append(['1322376', '448094','CLAY COUNTY', 'FL'])
+        expected_values.append(['190724', '206893','CLAY COUNTY', 'FL'])
+        expected_values.append(['0', '333743','CLAY COUNTY', 'FL'])
+        expected_values.append(['0', '172534','CLAY COUNTY', 'FL'])
+
+        for num in range(len(MC.upsertedDocs)):
+            vals = MC.upsertedDocs[num]
+
+            keys = list(vals.keys())
+            vals = list(vals.values())
+
+            keys.sort()
+            vals.sort()
+            assert keys == expected_keys
+            assert vals == expected_values[num]
+
         assert len(MC.upsertedDocs) == 5
         assert result.exit_code == 0
+
 
     # Tests that, given all required options, including a primary Key and URI combo and a TSV file, the tool works as expected
     @mock.patch('cadet.get_cosmos_client', autospec=True)
@@ -77,15 +107,55 @@ class TestClass(object):
         MC = MockClient()
         mock_get_cosmos_client.return_value = MC
         result = RUNNER.invoke(cadet.upload, [GOOD_TSV_TEST_FILE, '--type', TSV_TYPE, '-d', TEST_DB_NAME, '-c', TEST_COLLECTION_NAME, '-u', TEST_URI, '-k', TEST_KEY])
-        print(MC.upsertedDocs)
-        assert '{"Name": "Zeke", "Age": "45", "Address": "W Main St"}' in result.output
+        
+        expected_keys = ['Address', 'Age', 'Name']
+        
+        expected_values = list()
+        expected_values.append(['1115 W Franklin', '23', 'Paul'])
+        expected_values.append(['5', 'Bessy the Cow', 'Big Farm Way'])
+        expected_values.append(['45', 'W Main St', 'Zeke'])
+
+        for num in range(len(MC.upsertedDocs)):
+            vals = MC.upsertedDocs[num]
+
+            keys = list(vals.keys())
+            vals = list(vals.values())
+
+            keys.sort()
+            vals.sort()
+            assert keys == expected_keys
+            assert vals == expected_values[num]
+
+        assert len(MC.upsertedDocs) == 3
         assert result.exit_code == 0
 
     # Tests that, given all required options, using a connection string and a TSV file, the tool works as expected
     @mock.patch('cadet.get_cosmos_client', autospec=True)
     def test_all_good_params_connection_string_TSV(self, mock_get_cosmos_client):
+        MC = MockClient()
+        mock_get_cosmos_client.return_value = MC
         result = RUNNER.invoke(cadet.upload, [GOOD_TSV_TEST_FILE, '--type', TSV_TYPE, '--database-name', TEST_DB_NAME, '--collection-name', TEST_COLLECTION_NAME, '--connection-string', TEST_CONNECTION_STRING])
-        assert '{"Name": "Zeke", "Age": "45", "Address": "W Main St"}' in result.output
+        
+        expected_keys = ['Address', 'Age', 'Name']
+        
+        expected_values = list()
+        
+        expected_values.append(['1115 W Franklin', '23', 'Paul'])
+        expected_values.append(['5', 'Bessy the Cow', 'Big Farm Way'])
+        expected_values.append(['45', 'W Main St', 'Zeke'])
+
+        for num in range(len(MC.upsertedDocs)):
+            vals = MC.upsertedDocs[num]
+
+            keys = list(vals.keys())
+            vals = list(vals.values())
+
+            keys.sort()
+            vals.sort()
+            assert keys == expected_keys
+            assert vals == expected_values[num]
+
+        assert len(MC.upsertedDocs) == 3
         assert result.exit_code == 0
 
     # Tests that source file needs to be present
@@ -139,10 +209,10 @@ class TestClass(object):
         assert result.exit_code != 0
         assert 'The connection string is not properly formatted - aborting' in result.output
 
-    # Tests that an authentication failure raises an exception
-    @mock.patch('cadet.get_cosmos_client', autospec=True)
-    def test_authentication_failure(self, mock_get_cosmos_client):
-            mock_get_cosmos_client.side_effect = click.BadParameter('Authentication failure to Azure Cosmos')
-            result = RUNNER.invoke(cadet.upload, [GOOD_CSV_TEST_FILE, '--type', CSV_TYPE, '-d', TEST_DB_NAME, '-c', TEST_COLLECTION_NAME, '-u', TEST_URI, '-k', TEST_KEY])
-            assert result.exit_code != 0
-            assert 'Authentication failure to Azure Cosmos' in result.output
+    @mock.patch('cadet.cosmos_client', autospec=True)
+    def test_cosmos_client_throws_error(self, mock_cosmos_client):
+        MC = MockClient()
+        mock_cosmos_client.CosmosClient.side_effect = MC.CosmosClient
+        result = RUNNER.invoke(cadet.upload, [GOOD_TSV_TEST_FILE, '--type', TSV_TYPE, '--database-name', TEST_DB_NAME, '--collection-name', TEST_COLLECTION_NAME, '--connection-string', TEST_CONNECTION_STRING])
+        assert result.exit_code != 0
+        assert 'Authentication failure to Azure Cosmos' in result.output
