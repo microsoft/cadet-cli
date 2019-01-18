@@ -39,7 +39,7 @@ class MockClient(object):
         raise ConnectionError('Authentication failure to Azure Cosmos')
 
 class TestClass(object):
-    # Tests that, given all required options, including as primary Key and URI combo and a CSV file, the tool works as expected
+    # Tests that, given all required options, including a primary Key and URI combo and a CSV file, the tool works as expected
     @mock.patch('cadet.get_cosmos_client', autospec=True)
     def test_all_good_params_URI_primary_key_CSV(self, mock_get_cosmos_client):
         MC = MockClient()
@@ -50,12 +50,14 @@ class TestClass(object):
         
         expected_values = list()
         
+        # Expected values from the test.csv file
         expected_values.append(['119736', '498960','CLAY COUNTY', 'FL'])
         expected_values.append(['1322376', '448094','CLAY COUNTY', 'FL'])
         expected_values.append(['190724', '206893','CLAY COUNTY', 'FL'])
         expected_values.append(['0', '333743','CLAY COUNTY', 'FL'])
         expected_values.append(['0', '172534','CLAY COUNTY', 'FL'])
 
+        # Collection assert that expected values and actual upserted values are equal 
         for num in range(len(MC.upsertedDocs)):
             vals = MC.upsertedDocs[num]
 
@@ -79,13 +81,17 @@ class TestClass(object):
         
         expected_keys = ['county', 'eq_site_limit', 'policyID', 'statecode']
         
+        # Expected keys/headers from the test.csv file
         expected_values = list()
+
+        # Expected values from the test.csv file
         expected_values.append(['119736', '498960','CLAY COUNTY', 'FL'])
         expected_values.append(['1322376', '448094','CLAY COUNTY', 'FL'])
         expected_values.append(['190724', '206893','CLAY COUNTY', 'FL'])
         expected_values.append(['0', '333743','CLAY COUNTY', 'FL'])
         expected_values.append(['0', '172534','CLAY COUNTY', 'FL'])
 
+        # Collection assert that expected values and actual upserted values are equal
         for num in range(len(MC.upsertedDocs)):
             vals = MC.upsertedDocs[num]
 
@@ -107,14 +113,17 @@ class TestClass(object):
         MC = MockClient()
         mock_get_cosmos_client.return_value = MC
         result = RUNNER.invoke(cadet.upload, [GOOD_TSV_TEST_FILE, '--type', TSV_TYPE, '-d', TEST_DB_NAME, '-c', TEST_COLLECTION_NAME, '-u', TEST_URI, '-k', TEST_KEY])
-        
+        # Expected keys/headers from the test.csv file
         expected_keys = ['Address', 'Age', 'Name']
         
         expected_values = list()
+        
+        # Expected values from the test.csv file
         expected_values.append(['1115 W Franklin', '23', 'Paul'])
         expected_values.append(['5', 'Bessy the Cow', 'Big Farm Way'])
         expected_values.append(['45', 'W Main St', 'Zeke'])
 
+        # Collection assert that expected values and actual upserted values are equal
         for num in range(len(MC.upsertedDocs)):
             vals = MC.upsertedDocs[num]
 
@@ -136,14 +145,17 @@ class TestClass(object):
         mock_get_cosmos_client.return_value = MC
         result = RUNNER.invoke(cadet.upload, [GOOD_TSV_TEST_FILE, '--type', TSV_TYPE, '--database-name', TEST_DB_NAME, '--collection-name', TEST_COLLECTION_NAME, '--connection-string', TEST_CONNECTION_STRING])
         
+        # Expected keys/headers from the test.csv file
         expected_keys = ['Address', 'Age', 'Name']
         
         expected_values = list()
         
+        # Expected values from the test.csv file
         expected_values.append(['1115 W Franklin', '23', 'Paul'])
         expected_values.append(['5', 'Bessy the Cow', 'Big Farm Way'])
         expected_values.append(['45', 'W Main St', 'Zeke'])
 
+        # Collection assert that expected values and actual upserted values are equal
         for num in range(len(MC.upsertedDocs)):
             vals = MC.upsertedDocs[num]
 
@@ -209,7 +221,7 @@ class TestClass(object):
         assert result.exit_code != 0
         assert 'The connection string is not properly formatted - aborting' in result.output
 
-    #Test that cosmos_client error throwing functionality, if connection to service fails
+    # Test that cosmos_client error throwing functionality, if connection to service fails
     @mock.patch('cadet.cosmos_client', autospec=True)
     def test_cosmos_client_throws_error(self, mock_cosmos_client):
         MC = MockClient()
