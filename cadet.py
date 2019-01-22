@@ -81,6 +81,9 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     elif connection_string is not None:
         try:
             # If someone provides the connection string, break it apart into its subcomponents
+            if 'AccountEndpoint=' not in connection_string or 'AccountKey=' not in connection_string:
+                raise click.BadParameter('The connection string is not properly formatted - aborting')
+
             conn_str = connection_string.split(';')
             _connection_url = conn_str[0].replace('AccountEndpoint=', '')
             _auth = {'masterKey': conn_str[1].replace('AccountKey=', '')}
@@ -92,6 +95,7 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     collection_link = database_link + '/colls/' + collection_name
 
     # Connect to Cosmos
+    
     try:
         client = get_cosmos_client(_connection_url, _auth)
     except:
@@ -102,7 +106,6 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
         read_and_upload(source, type_, client, collection_link)
     except FileNotFoundError as err:
         raise click.FileError(source, hint=err)
-
 
 def get_cosmos_client(connection_url, auth):
     """
@@ -137,14 +140,12 @@ def read_and_upload(source, file_type, client, collection_link):
                 else:
                     for ind, col in enumerate(csv_cols):
                         document[col] = row[ind]
-
                     try:
                         client.UpsertItem(collection_link, document)
                         status_bar.update(sys.getsizeof(document))
                     except:
                         raise click.ClickException('Upload failed')
     click.echo('Upload complete!')
-
-
+    
 if __name__ == '__main__':
     main()
