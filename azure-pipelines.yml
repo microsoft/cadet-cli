@@ -13,13 +13,13 @@ phases:
     displayName: 'Use Python 3.x'
   - script: |  
        cd src
-       pip install -r requirements.txt
+       pip3 install -r requirements.txt
        pylint src
        pytest
     displayName: lint and test
   - script: |  
        cd package
-       pip install -r requirements.txt
+       pip3 install -r requirements.txt
        pyinstaller --onefile ../src/cadet.py
     displayName: package
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
@@ -83,7 +83,7 @@ phases:
   steps:
   - script: |  
        cd src
-       pip install -r requirements.txt
+       pip3 install -r requirements.txt
        pylint src
        pytest
     displayName: lint and test
@@ -91,7 +91,7 @@ phases:
     displayName: 'Use Python 3.x'
   - script: |  
        cd package
-       pip install -r requirements.txt
+       pip3 install -r requirements.txt
        pyinstaller --onefile ../src/cadet.py
        mv dist/cadet dist/cadet.mac
     displayName: package
