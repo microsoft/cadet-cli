@@ -14,18 +14,19 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Getting started
 
-+ Install [python >= 3.7.2](https://www.python.org/downloads/)
-+ Ensure you have [pip](https://pip.pypa.io/en/stable/installing/)
-+ `cd src`
-+ `pip install -r requirements.txt`
++ Install [python >= 3.6.0](https://www.python.org/downloads/)
++ Ensure you have python 3.x's installer `pip3`
+  + For the Ubuntu distribution 16.04+, the command should be `sudo apt-get install python3-pip`
++ (_Recommended_) Get familiar with Python's [`venv`](https://docs.python.org/3/tutorial/venv.html) or [`virtualenv`](https://virtualenv.pypa.io/en/latest/)
+  +  This allows for compartmentalizing any development work
++ `pip3 install -r src/requirements.txt`
 + Ready to code and run
 
 ## Testing
 
 > Note: Ensure you've first completed the [Getting started](#getting-started) steps!
 
-+ `cd src`
-+ `pytest`
++ `python3 -m pytest src/test/`
 
 ## Dependency Management
 
