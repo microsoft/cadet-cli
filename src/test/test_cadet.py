@@ -82,7 +82,6 @@ class TestClass:
             upload, [GOOD_CSV, '--type', CSV_TYPE, '-d', TEST_DB,
                      '-c', TEST_COLLECTION, '-u', TEST_URI, '-k', TEST_KEY]
             )
-
         expected_keys = ['county', 'eq_site_limit', 'policyID', 'statecode']
 
         expected_values = list()
@@ -124,7 +123,7 @@ class TestClass:
         mock_get_full_source_path.return_value = os.path.join(CURR_DIRECTORY, GOOD_CSV)
         result = RUNNER.invoke(
             upload, [GOOD_CSV, '--type', CSV_TYPE, '--database-name', TEST_DB,
-                     '--collection-name', TEST_COLLECTION, '--conn-string', TEST_CONN_STRING]
+                     '--collection-name', TEST_COLLECTION, '--connection-string', TEST_CONN_STRING]
             )
 
         expected_keys = ['county', 'eq_site_limit', 'policyID', 'statecode']
@@ -213,7 +212,7 @@ class TestClass:
         mock_get_full_source_path.return_value = os.path.join(CURR_DIRECTORY, GOOD_TSV)
         result = RUNNER.invoke(
             upload, [GOOD_TSV, '--type', TSV_TYPE, '--database-name', TEST_DB,
-                     '--collection-name', TEST_COLLECTION, '--conn-string', TEST_CONN_STRING]
+                     '--collection-name', TEST_COLLECTION, '--connection-string', TEST_CONN_STRING]
             )
 
         # Expected keys/headers from the test.csv file
@@ -368,7 +367,7 @@ class TestClass:
         mock_cosmos_client.CosmosClient.side_effect = mock_client.CosmosClient
         result = RUNNER.invoke(
             upload, [GOOD_TSV, '--type', TSV_TYPE, '--database-name', TEST_DB,
-                     '--collection-name', TEST_COLLECTION, '--conn-string', TEST_CONN_STRING]
+                     '--collection-name', TEST_COLLECTION, '--connection-string', TEST_CONN_STRING]
             )
         assert result.exit_code != 0
         assert 'Authentication failure to Azure Cosmos' in result.output
