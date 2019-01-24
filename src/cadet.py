@@ -27,7 +27,7 @@ def cadet():
 
 @cadet.command(name='import')
 @click.option(
-    '--connection-string', '-s', '--conn-string',
+    '--connection-string', '-s',
     help='The connection string for the database'
     )
 @click.option(
@@ -54,7 +54,7 @@ def cadet():
     required=True
 )
 @click.argument('source')
-def upload(source, type_, collection_name, database_name, primary_key, uri, conn_string):
+def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string):
     """
     Given a source file `source` of type `type_`:
         1. connects to the Cosmos DB instance using either
@@ -72,22 +72,24 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
         raise click.BadParameter('We currently only support CSV and TSV uploads from Cadet')
 
     # You must have either the connection string OR (endpoint and key) to connect
-    if (uri is None or primary_key is None) and (conn_string is None):
+    if (uri is None or primary_key is None) and (connection_string is None):
         raise click.BadParameter(
             'REQUIRED: Connection string OR *both* a URI and a key'
             )
     elif uri is not None and primary_key is not None:
         _connection_url = uri
         _auth = {'masterKey': primary_key}
-    elif conn_string is not None:
+    elif connection_string is not None:
+        connection_str = connection_string.split(';')
+        _connection_url = connection_str[0].replace('AccountEndpoint=', '')
+
         try:
             # If someone provides the connection string, break it apart into its subcomponents
-            if 'AccountEndpoint=' not in conn_string or 'AccountKey=' not in conn_string:
+            if 'AccountEndpoint=' not in connection_string or 'AccountKey=' not in connection_string:
                 raise click.BadParameter('The connection string is not properly formatted.')
-
-            conn_str = connection_string.split(';')
-            _connection_url = conn_str[0].replace('AccountEndpoint=', '')
-            _auth = {'masterKey': conn_str[1].replace('AccountKey=', '')}
+            connection_str = connection_string.split(';')
+            _connection_url = connection_str[0].replace('AccountEndpoint=', '')
+            _auth = {'masterKey': connection_str[1].replace('AccountKey=', '')}
         except:
             # ...Unless they don't provide a usable connection string
             raise click.BadParameter('The connection string is not properly formatted.')
@@ -103,10 +105,13 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
 
     # Read and upload at same time
     try:
-        read_and_upload(source, type_, client, collection_link)
+        source_path = get_full_source_path(source)
+        read_and_upload(source_path, type_, client, collection_link)
     except FileNotFoundError as err:
         raise click.FileError(source, hint=err)
 
+def get_full_source_path(source):
+    return os.path.join(os.path.dirname(__file__), source)
 
 def get_cosmos_client(connection_url, auth):
     """
@@ -119,16 +124,15 @@ def get_cosmos_client(connection_url, auth):
     )
 
 
-def read_and_upload(source, file_type, client, collection_link):
+def read_and_upload(source_path, file_type, client, collection_link):
     """
     Reads the CSV `source` of type `file_type`, connects to the `client` to the
     database-collection combination found in `collection_link`
     """
      # Stats read for percentage done
-    source_size = os.stat(source).st_size
+    source_size = os.stat(source_path).st_size
     click.echo('Source file total size is: %s bytes' % source_size)
-
-    with open(source, 'r') as source_file:
+    with open(source_path, 'r') as source_file:
         click.echo('Starting the upload')
         document = {}
         csv_reader = csv.reader(source_file, delimiter=DELIMITERS[file_type])
