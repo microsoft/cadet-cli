@@ -11,6 +11,8 @@ phases:
   steps:
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.x'
+    inputs:
+      versionSpec: 3.5
   - script: |  
        cd src
        pip3 install -r requirements.txt
@@ -49,7 +51,7 @@ phases:
   - script: |  
        cd src
        pip3 install -r requirements.txt
-       pylint src
+       python3 -m pylint src
        pytest
     displayName: lint and test
   - script: 'sudo apt-get install -y python3-dev'
@@ -89,6 +91,8 @@ phases:
     displayName: lint and test
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.x'
+    inputs:
+      versionSpec: 3.5
   - script: |  
        cd package
        pip3 install -r requirements.txt
