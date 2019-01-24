@@ -51,8 +51,6 @@ class MockClient:
 
     # pylint: disable=C0103
     # Reason: Using same method call as SDK
-    # pylint: disable=C0103
-    # Reason: Using same method call as SDK
     @classmethod
     def CosmosClient(cls, url_connection, auth):
         """
@@ -68,6 +66,7 @@ class TestClass:
 
     @mock.patch('src.cadet.get_full_source_path', autospec=True)
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
+
     # pylint: disable=R0201
     # Reason: Test function
     def test_good_params_uri_pkey_csv(self, mock_get_cosmos_client, mock_get_full_source_path):
@@ -111,6 +110,7 @@ class TestClass:
 
     @mock.patch('src.cadet.get_full_source_path', autospec=True)
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
+
     # pylint: disable=R0201
     # Reason: Test function
     def test_good_params_conn_str_csv(self, mock_get_cosmos_client, mock_get_full_source_path):
@@ -156,6 +156,7 @@ class TestClass:
 
     @mock.patch('src.cadet.get_full_source_path', autospec=True)
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
+
     # pylint: disable=R0201
     # Reason: Test function
     def test_good_params_uri_pkey_tsv(self, mock_get_cosmos_client, mock_get_full_source_path):
@@ -355,6 +356,7 @@ class TestClass:
         assert 'The connection string is not properly formatted' in result.output
 
     @mock.patch('src.cadet.cosmos_client', autospec=True)
+
     # pylint: disable=R0201
     # Reason: Test function
     def test_cosmos_client_throws_error(self, mock_cosmos_client):

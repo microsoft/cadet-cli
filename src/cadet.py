@@ -103,7 +103,10 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
 
     # Read and upload at same time
     try:
-        source_path = get_full_source_path(source)
+        if '/' in source or '\\' in source:
+            source_path = source
+        else:
+            source_path = get_full_source_path(source)
         read_and_upload(source_path, type_, client, collection_link)
     except FileNotFoundError as err:
         raise click.FileError(source, hint=err)
