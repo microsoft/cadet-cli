@@ -27,7 +27,7 @@ def cadet():
 
 @cadet.command(name='import')
 @click.option(
-    '--connection-string', '-s', '--conn-string',
+    '--conn-string', '-s',
     help='The connection string for the database'
     )
 @click.option(
@@ -85,9 +85,9 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
             if 'AccountEndpoint=' not in conn_string or 'AccountKey=' not in conn_string:
                 raise click.BadParameter('The connection string is not properly formatted.')
 
-            conn_str = connection_string.split(';')
-            _connection_url = conn_str[0].replace('AccountEndpoint=', '')
-            _auth = {'masterKey': conn_str[1].replace('AccountKey=', '')}
+            connection_str = conn_string.split(';')
+            _connection_url = connection_str[0].replace('AccountEndpoint=', '')
+            _auth = {'masterKey': connection_str[1].replace('AccountKey=', '')}
         except:
             # ...Unless they don't provide a usable connection string
             raise click.BadParameter('The connection string is not properly formatted.')
@@ -103,10 +103,13 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
 
     # Read and upload at same time
     try:
-        read_and_upload(source, type_, client, collection_link)
+        source_path = get_full_source_path(source)
+        read_and_upload(source_path, type_, client, collection_link)
     except FileNotFoundError as err:
         raise click.FileError(source, hint=err)
 
+def get_full_source_path(source):
+    return os.path.join(os.path.dirname(__file__), source)
 
 def get_cosmos_client(connection_url, auth):
     """

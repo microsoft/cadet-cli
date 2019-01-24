@@ -1,7 +1,14 @@
+"""
+Import necessary modules
+"""
 from click.testing import CliRunner
 from ..cadet import cadet
 
 def test_version():
+    """
+    Import runner function
+    """
+
     runner = CliRunner()
     result = runner.invoke(cadet, ['--version'])
     assert result.exit_code == 0

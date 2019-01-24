@@ -1,13 +1,14 @@
 """
 Imports module necessary for testing
 """
-
 import copy
+import os
 from unittest import mock
 
-from click.testing import CliRunner
+# pylint: disable=W0622
+# Reason: Redefined to use same error as SDK
 from requests.exceptions import ConnectionError
-
+from click.testing import CliRunner
 from ..cadet import (
     upload
 )
@@ -19,6 +20,7 @@ CSV_TYPE = 'CSV'
 TSV_TYPE = 'TSV'
 
 TXT_TEST_FILE = 'a.txt'
+CURR_DIRECTORY = os.path.dirname(__file__)
 
 # Default Connection string, URI, Key, DB Name and Collection name are
 # not actual instances of valid strings; currently used for testing purposes only
@@ -38,6 +40,8 @@ class MockClient:
     def __init__(self):
         self.upserted_docs = list()
 
+    # pylint: disable=C0103
+    # Reason: Using same method call as SDK
     def UpsertItem(self, _collection_link, document):
         """
         Mocks Azure Client's UpsertItem function
@@ -45,7 +49,12 @@ class MockClient:
 
         self.upserted_docs.append(copy.copy(document))
 
-    def CosmosClient(self, url_connection, auth):
+    # pylint: disable=C0103
+    # Reason: Using same method call as SDK
+    # pylint: disable=C0103
+    # Reason: Using same method call as SDK
+    @classmethod
+    def CosmosClient(cls, url_connection, auth):
         """
         Mocks Azure CosmosClient's authentication and connection process
         """
@@ -57,14 +66,18 @@ class TestClass:
     Class constructed to hold tests
     """
 
+    @mock.patch('src.cadet.get_full_source_path', autospec=True)
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
-    def test_all_good_params_uri_primary_key_csv(self, mock_get_cosmos_client):
+    # pylint: disable=R0201
+    # Reason: Test function
+    def test_good_params_uri_pkey_csv(self, mock_get_cosmos_client, mock_get_full_source_path):
         """
         Tests that, given all required options, including a primary Key and URI combo
         and a CSV file, the tool works as expected
         """
 
         mock_client = MockClient()
+        mock_get_full_source_path.return_value = os.path.join(CURR_DIRECTORY, GOOD_CSV)
         mock_get_cosmos_client.return_value = mock_client
         result = RUNNER.invoke(
             upload, [GOOD_CSV, '--type', CSV_TYPE, '-d', TEST_DB,
@@ -93,12 +106,14 @@ class TestClass:
             vals.sort()
             assert keys == expected_keys
             assert vals == expected_values[num]
-
         assert len(mock_client.upserted_docs) == 5
         assert result.exit_code == 0
 
+    @mock.patch('src.cadet.get_full_source_path', autospec=True)
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
-    def test_all_good_params_connection_string_csv(self, mock_get_cosmos_client):
+    # pylint: disable=R0201
+    # Reason: Test function
+    def test_good_params_conn_str_csv(self, mock_get_cosmos_client, mock_get_full_source_path):
         """
         Tests that, given all required options, using a connection string and a CSV file,
         the tool works as expected
@@ -106,9 +121,10 @@ class TestClass:
 
         mock_client = MockClient()
         mock_get_cosmos_client.return_value = mock_client
+        mock_get_full_source_path.return_value = os.path.join(CURR_DIRECTORY, GOOD_CSV)
         result = RUNNER.invoke(
             upload, [GOOD_CSV, '--type', CSV_TYPE, '--database-name', TEST_DB,
-                     '--collection-name', TEST_COLLECTION, '--connection-string', TEST_CONN_STRING]
+                     '--collection-name', TEST_COLLECTION, '--conn-string', TEST_CONN_STRING]
             )
 
         expected_keys = ['county', 'eq_site_limit', 'policyID', 'statecode']
@@ -138,9 +154,11 @@ class TestClass:
         assert len(mock_client.upserted_docs) == 5
         assert result.exit_code == 0
 
-
+    @mock.patch('src.cadet.get_full_source_path', autospec=True)
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
-    def test_all_good_params_uri_primary_key_tsv(self, mock_get_cosmos_client):
+    # pylint: disable=R0201
+    # Reason: Test function
+    def test_good_params_uri_pkey_tsv(self, mock_get_cosmos_client, mock_get_full_source_path):
         """
         Tests that, given all required options, including a primary Key and URI combo
         and a TSV file, the tool works as expected
@@ -148,6 +166,7 @@ class TestClass:
 
         mock_client = MockClient()
         mock_get_cosmos_client.return_value = mock_client
+        mock_get_full_source_path.return_value = os.path.join(CURR_DIRECTORY, GOOD_TSV)
         result = RUNNER.invoke(
             upload, [GOOD_TSV, '--type', TSV_TYPE, '-d', TEST_DB,
                      '-c', TEST_COLLECTION, '-u', TEST_URI, '-k', TEST_KEY]
@@ -177,8 +196,12 @@ class TestClass:
         assert len(mock_client.upserted_docs) == 3
         assert result.exit_code == 0
 
+    @mock.patch('src.cadet.get_full_source_path', autospec=True)
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
-    def test_all_good_params_connection_string_tsv(self, mock_get_cosmos_client):
+
+    # pylint: disable=R0201
+    # Reason: Test function
+    def test_good_params_conn_string_tsv(self, mock_get_cosmos_client, mock_get_full_source_path):
         """
         Tests that, given all required options, using a connection string and a TSV file,
         the tool works as expected
@@ -186,9 +209,10 @@ class TestClass:
 
         mock_client = MockClient()
         mock_get_cosmos_client.return_value = mock_client
+        mock_get_full_source_path.return_value = os.path.join(CURR_DIRECTORY, GOOD_TSV)
         result = RUNNER.invoke(
             upload, [GOOD_TSV, '--type', TSV_TYPE, '--database-name', TEST_DB,
-                     '--collection-name', TEST_COLLECTION, '--connection-string', TEST_CONN_STRING]
+                     '--collection-name', TEST_COLLECTION, '--conn-string', TEST_CONN_STRING]
             )
 
         # Expected keys/headers from the test.csv file
@@ -216,6 +240,8 @@ class TestClass:
         assert len(mock_client.upserted_docs) == 3
         assert result.exit_code == 0
 
+    # pylint: disable=R0201
+    # Reason: Test function
     def test_source_is_missing(self):
         """
         Tests that source file needs to be present
@@ -227,6 +253,8 @@ class TestClass:
         assert result.exit_code != 0
         assert 'Missing argument "SOURCE"' in result.output
 
+    # pylint: disable=R0201
+    # Reason: Test function
     def test_source_file_txt(self):
         """
         Tests that source file extension needs to be .csv or .tsv
@@ -239,6 +267,8 @@ class TestClass:
         assert result.exit_code != 0
         assert 'We currently only support CSV and TSV uploads from Cadet' in result.output
 
+    # pylint: disable=R0201
+    # Reason: Test function
     def test_db_not_present(self):
         """
         Tests that DB name needs to be present
@@ -251,6 +281,8 @@ class TestClass:
         assert result.exit_code != 0
         assert 'Missing option "--database-name"' in result.output
 
+    # pylint: disable=R0201
+    # Reason: Test function
     def test_collection_not_present(self):
         """
         Tests that collection name needs to be present
@@ -263,7 +295,9 @@ class TestClass:
         assert result.exit_code != 0
         assert 'Missing option "--collection-name"' in result.output
 
-    def test_connection_string_uri_and_primary_key_absence(self):
+    # pylint: disable=R0201
+    # Reason: Test function
+    def test_conn_string_uri_and_pkey_absence(self):
         """
         Tests that connection string or primary key/URI needs to be present
         """
@@ -275,6 +309,8 @@ class TestClass:
         assert result.exit_code != 0
         assert 'REQUIRED: Connection string OR *both* a URI and a key' in result.output
 
+    # pylint: disable=R0201
+    # Reason: Test function
     def test_uri_absent_key_present(self):
         """
         Tests that URI must be present, if connection string not present
@@ -287,7 +323,9 @@ class TestClass:
         assert result.exit_code != 0
         assert 'REQUIRED: Connection string OR *both* a URI and a key' in result.output
 
-    def test_primary_key_absent_uri_present(self):
+    # pylint: disable=R0201
+    # Reason: Test function
+    def test_pkey_absent_uri_present(self):
         """
         Tests that primary key must be present if connection string not present
         """
@@ -299,22 +337,26 @@ class TestClass:
         assert result.exit_code != 0
         assert 'REQUIRED: Connection string OR *both* a URI and a key' in result.output
 
-    def test_connection_string_parsing(self):
+    # pylint: disable=R0201
+    # Reason: Test function
+    def test_conn_string_parsing(self):
         """
         Tests that connection string is correctly parsed
         """
 
         invalid_uri = 'AccountEndpoint=invalidEndpoint'
         invalid_account_key = 'AccountKey:invalidKey;'
-        invalid_connection_string = invalid_uri + invalid_account_key
+        invalid_conn_string = invalid_uri + invalid_account_key
         result = RUNNER.invoke(
             upload, [GOOD_CSV, '--type', CSV_TYPE, '--database-name', TEST_DB,
-                     '--collection-name', TEST_COLLECTION, '-s', invalid_connection_string]
+                     '--collection-name', TEST_COLLECTION, '-s', invalid_conn_string]
             )
         assert result.exit_code != 0
-        assert 'The connection string is not properly formatted - aborting' in result.output
+        assert 'The connection string is not properly formatted' in result.output
 
     @mock.patch('src.cadet.cosmos_client', autospec=True)
+    # pylint: disable=R0201
+    # Reason: Test function
     def test_cosmos_client_throws_error(self, mock_cosmos_client):
         """
         Test that cosmos_client error throwing functionality, if connection to service fails
