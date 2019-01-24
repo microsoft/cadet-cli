@@ -54,7 +54,7 @@ def cadet():
     required=True
 )
 @click.argument('source')
-def upload(source, type_, collection_name, database_name, primary_key, uri, conn_string):
+def upload(source, type_, collection_name, database_name, primary_key, uri, connection_string):
     """
     Given a source file `source` of type `type_`:
         1. connects to the Cosmos DB instance using either
@@ -72,22 +72,24 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
         raise click.BadParameter('We currently only support CSV and TSV uploads from Cadet')
 
     # You must have either the connection string OR (endpoint and key) to connect
-    if (uri is None or primary_key is None) and (conn_string is None):
+    if (uri is None or primary_key is None) and (connection_string is None):
         raise click.BadParameter(
             'REQUIRED: Connection string OR *both* a URI and a key'
             )
     elif uri is not None and primary_key is not None:
         _connection_url = uri
         _auth = {'masterKey': primary_key}
-    elif conn_string is not None:
+    elif connection_string is not None:
+        connection_str = connection_string.split(';')
+        _connection_url = connection_str[0].replace('AccountEndpoint=', '')
+
         try:
             # If someone provides the connection string, break it apart into its subcomponents
-            if 'AccountEndpoint=' not in conn_string or 'AccountKey=' not in conn_string:
+            if 'AccountEndpoint=' not in connection_string or 'AccountKey=' not in connection_string:
                 raise click.BadParameter('The connection string is not properly formatted.')
-
-            conn_str = connection_string.split(';')
-            _connection_url = conn_str[0].replace('AccountEndpoint=', '')
-            _auth = {'masterKey': conn_str[1].replace('AccountKey=', '')}
+            connection_str = connection_string.split(';')
+            _connection_url = connection_str[0].replace('AccountEndpoint=', '')
+            _auth = {'masterKey': connection_str[1].replace('AccountKey=', '')}
         except:
             # ...Unless they don't provide a usable connection string
             raise click.BadParameter('The connection string is not properly formatted.')
