@@ -13,13 +13,13 @@ phases:
     displayName: 'Use Python 3.x'
     inputs:
       versionSpec: 3.5
-  - script: |  
+  - script: |
        cd src
        pip3 install -r requirements.txt
        pylint src
        pytest
     displayName: lint and test
-  - script: |  
+  - script: |
        cd package
        pip3 install -r requirements.txt
        pyinstaller --onefile ../src/cadet.py
@@ -48,15 +48,16 @@ phases:
     displayName: 'Use Python 3.5'
     inputs:
       versionSpec: 3.5
-  - script: |  
-       cd src
-       pip3 install -r requirements.txt
+  - script: |
+       pip3 install -r src/requirements.txt
+    displayName: install requirements
+  - script: |
        python3 -m pylint src
        pytest
     displayName: lint and test
   - script: 'sudo apt-get install -y python3-dev'
     displayName: 'deps - apt-get'
-  - script: |  
+  - script: |
        cd package
        pip3 install -r requirements.txt
        pyinstaller --onefile ../src/cadet.py
@@ -83,7 +84,7 @@ phases:
   queue:
     name: Hosted macOS
   steps:
-  - script: |  
+  - script: |
        cd src
        pip3 install -r requirements.txt
        pylint src
@@ -93,7 +94,7 @@ phases:
     displayName: 'Use Python 3.x'
     inputs:
       versionSpec: 3.5
-  - script: |  
+  - script: |
        cd package
        pip3 install -r requirements.txt
        pyinstaller --onefile ../src/cadet.py
@@ -102,7 +103,7 @@ phases:
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   - task: GitHubRelease@0
     displayName: 'GitHub release (edit)'
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))    
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     inputs:
       gitHubConnection: bengreenier
       repositoryName: 'microsoft/cadet-cli'
@@ -113,4 +114,3 @@ phases:
       assets: 'package/dist/*'
       assetUploadMode: replace
       isDraft: true
-      
