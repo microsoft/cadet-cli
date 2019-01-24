@@ -27,7 +27,7 @@ def cadet():
 
 @cadet.command(name='import')
 @click.option(
-    '--conn-string', '-s',
+    '--conn-string', '-s', '--connection-string',
     help='The connection string for the database'
     )
 @click.option(
