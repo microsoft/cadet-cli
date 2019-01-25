@@ -68,7 +68,7 @@ class TestClass:
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_good_params_uri_pkey_csv(self, mock_get_cosmos_client, mock_get_full_source_path):
         """
         Tests that, given all required options, including a primary Key and URI combo
@@ -111,7 +111,7 @@ class TestClass:
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_good_params_conn_str_csv(self, mock_get_cosmos_client, mock_get_full_source_path):
         """
         Tests that, given all required options, using a connection string and a CSV file,
@@ -157,7 +157,7 @@ class TestClass:
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_good_params_uri_pkey_tsv(self, mock_get_cosmos_client, mock_get_full_source_path):
         """
         Tests that, given all required options, including a primary Key and URI combo
@@ -200,7 +200,7 @@ class TestClass:
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_good_params_conn_string_tsv(self, mock_get_cosmos_client, mock_get_full_source_path):
         """
         Tests that, given all required options, using a connection string and a TSV file,
@@ -241,7 +241,7 @@ class TestClass:
         assert result.exit_code == 0
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_source_is_missing(self):
         """
         Tests that source file needs to be present
@@ -254,7 +254,7 @@ class TestClass:
         assert 'Missing argument "SOURCE"' in result.output
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_source_file_txt(self):
         """
         Tests that source file extension needs to be .csv or .tsv
@@ -268,7 +268,7 @@ class TestClass:
         assert 'We currently only support CSV and TSV uploads from Cadet' in result.output
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_db_not_present(self):
         """
         Tests that DB name needs to be present
@@ -282,7 +282,7 @@ class TestClass:
         assert 'Missing option "--database-name"' in result.output
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_collection_not_present(self):
         """
         Tests that collection name needs to be present
@@ -296,7 +296,7 @@ class TestClass:
         assert 'Missing option "--collection-name"' in result.output
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_conn_string_uri_and_pkey_absence(self):
         """
         Tests that connection string or primary key/URI needs to be present
@@ -310,7 +310,7 @@ class TestClass:
         assert 'REQUIRED: Connection string OR *both* a URI and a key' in result.output
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_uri_absent_key_present(self):
         """
         Tests that URI must be present, if connection string not present
@@ -324,7 +324,7 @@ class TestClass:
         assert 'REQUIRED: Connection string OR *both* a URI and a key' in result.output
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_pkey_absent_uri_present(self):
         """
         Tests that primary key must be present if connection string not present
@@ -338,7 +338,7 @@ class TestClass:
         assert 'REQUIRED: Connection string OR *both* a URI and a key' in result.output
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_conn_string_parsing(self):
         """
         Tests that connection string is correctly parsed
@@ -357,7 +357,7 @@ class TestClass:
     @mock.patch('src.cadet.cosmos_client', autospec=True)
 
     # pylint: disable=R0201
-    # Reason: Test function
+    # Reason: R0201 makes pytest ignore test functions
     def test_cosmos_client_throws_error(self, mock_cosmos_client):
         """
         Test that cosmos_client error throwing functionality, if connection to service fails
