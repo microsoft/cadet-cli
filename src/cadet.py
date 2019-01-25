@@ -27,7 +27,7 @@ def cadet():
 
 @cadet.command(name='import')
 @click.option(
-    '--connection-string', '-s', '--conn-string',
+    '--connection-string', '-s',
     help='The connection string for the database'
     )
 @click.option(
@@ -105,10 +105,13 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
 
     # Read and upload at same time
     try:
-        read_and_upload(source, type_, client, collection_link)
+        source_path = get_full_source_path(source)
+        read_and_upload(source_path, type_, client, collection_link)
     except FileNotFoundError as err:
         raise click.FileError(source, hint=err)
 
+def get_full_source_path(source):
+    return os.path.join(os.path.dirname(__file__), source)
 
 def get_cosmos_client(connection_url, auth):
     """
@@ -121,16 +124,15 @@ def get_cosmos_client(connection_url, auth):
     )
 
 
-def read_and_upload(source, file_type, client, collection_link):
+def read_and_upload(source_path, file_type, client, collection_link):
     """
     Reads the CSV `source` of type `file_type`, connects to the `client` to the
     database-collection combination found in `collection_link`
     """
      # Stats read for percentage done
-    source_size = os.stat(source).st_size
+    source_size = os.stat(source_path).st_size
     click.echo('Source file total size is: %s bytes' % source_size)
-
-    with open(source, 'r') as source_file:
+    with open(source_path, 'r') as source_file:
         click.echo('Starting the upload')
         document = {}
         csv_reader = csv.reader(source_file, delimiter=DELIMITERS[file_type])
