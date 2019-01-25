@@ -68,7 +68,7 @@ class TestClass:
     @mock.patch('src.cadet.get_cosmos_client', autospec=True)
 
     # pylint: disable=R0201
-    # Reason: R0201 makes pytest ignore R0201 makes pytest ignore test functionss
+    # Reason: R0201 makes pytest ignore test functions
     def test_good_params_uri_pkey_csv(self, mock_get_cosmos_client, mock_get_full_source_path):
         """
         Tests that, given all required options, including a primary Key and URI combo
