@@ -86,9 +86,10 @@ phases:
     name: Hosted macOS
   steps:
   - script: |
-       cd src
-       pip3 install -r requirements.txt
-       pylint src
+       pip3 install -r src/requirements.txt
+    displayName: install requirements
+  - script: |
+       python3 -m pylint src
        pytest
     displayName: lint and test
   - task: UsePythonVersion@0
