@@ -1,6 +1,6 @@
 # cadet-cli
 
-[![Build Status](https://dev.azure.com/csebostoncrew/Cadet-CLI/_apis/build /status/Microsoft.cadet-cli?branchName=master)](https://dev.azure.com/csebostoncrew/Cadet-CLI/_build/latest?definitionId=26?branchName=master)
+[![Build Status](https://dev.azure.com/csebostoncrew/Cadet-CLI/_apis/build/status/Microsoft.cadet-cli?branchName=master)](https://dev.azure.com/csebostoncrew/Cadet-CLI/_build/latest?definitionId=26?branchName=master)
 
 **C**osmos **A**utomated **D**ata **E**xchange **T**ool - A cross-platform utility to synchronize data with a [DocumentDB](https://docs.microsoft.com/en-us/azure/cosmos-db/create-sql-api-dotnet)-backed [Azure Cosmos DB](https://azure.microsoft.com/en-us/services/cosmos-db/) instance. 👩‍🚀☁
 
@@ -16,7 +16,7 @@ Cadet is designed to make it simple to exchange data with Azure Cosmos DB instan
 
 ### Import data from csv
 
-The following command will import a comma-separated values file into the Azure Cosmos DB server located at `your-server-connection-string` into the collection `your-collection-name` on database `your-database-name`. It will read the data from `path/to/csv.csv`, and will output progress as data uploads. 
+The following command will import a comma-separated values file into the Azure Cosmos DB server located at `your-server-connection-string` into the collection `your-collection-name` on database `your-database-name`. It will read the data from `path/to/csv.csv`, and will output progress as data uploads.
 
 ```
 cadet import --type csv --connection-string "your-server-connection-string" --database "your-database-name" --collection "your-collection-name" path/to/csv.csv
