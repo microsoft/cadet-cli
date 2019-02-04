@@ -50,7 +50,7 @@ phases:
     inputs:
       versionSpec: 3.5
   - script: |
-       pip3 install -r src/requirements.txt
+       pip3 install --no-use-pep517 -r src/requirements.txt
     displayName: install requirements
   - script: |
        python3 -m pylint src
@@ -86,7 +86,7 @@ phases:
     name: Hosted macOS
   steps:
   - script: |
-       pip3 install -r src/requirements.txt
+       pip3 install --no-use-pep517 -r src/requirements.txt
     displayName: install requirements
   - script: |
        python3 -m pylint src
