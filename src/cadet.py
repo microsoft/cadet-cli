@@ -3,7 +3,6 @@
 This CLI tool allows a user to upload CSV and TSV files to an Azure CosmosDB instance configured
 to use DocumentDB.
 """
-
 import csv
 import os
 import sys
@@ -14,6 +13,8 @@ DELIMITERS = {
     'CSV': ',',
     'TSV': '\t'
 }
+
+FILE_ENDINGS = ('.CSV', '.TSV')
 
 
 @click.version_option('1.0.0')
@@ -68,7 +69,7 @@ def upload(source, type_, collection_name, database_name, primary_key, uri, conn
     """
     # Make sure it's a CSV or TSV
     type_ = type_.upper()
-    if type_ not in ['CSV', 'TSV'] or not source.upper().endswith(('.CSV', '.TSV')):
+    if type_ not in DELIMITERS or not source.upper().endswith(FILE_ENDINGS):
         raise click.BadParameter('We currently only support CSV and TSV uploads from Cadet')
 
     # You must have either the connection string OR (endpoint and key) to connect
@@ -147,10 +148,10 @@ def read_and_upload(source_path, file_type, client, collection_link):
                         document[col] = row[ind]
                     try:
                         client.UpsertItem(collection_link, document)
-                        status_bar.update(sys.getsizeof(document))
+                        status_bar.update(sys.getsizeof(row))
                     except:
                         raise click.ClickException('Upload failed')
-    click.echo('Upload complete!')
+        click.echo('Upload complete!')
 
 
 if __name__ == '__main__':
