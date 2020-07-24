@@ -37,7 +37,6 @@ To add dependencies:
 + Add an entry to `requirements-to-freeze.txt`
 + Then run `pip install -r requirements-to-freeze.txt`
 + Finally, when ready to lock versions (before release), run `pip freeze > requirements.txt`
-  + Gotcha: Beware, there is a [known bug](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=871790) where a package `pkg-resources==0.0.0` gets added if you have a virtual environment running. **Remove this line before pushing it to any pipeline.**
 
 To update dependencies:
 
