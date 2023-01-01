@@ -24,7 +24,7 @@ requests==2.24.0
 six==1.15.0
 toml==0.10.1
 typed-ast==1.4.1
-urllib3==1.25.10
+urllib3==1.26.5
 wcwidth==0.2.5
 wrapt==1.12.1
 zipp==3.1.0
